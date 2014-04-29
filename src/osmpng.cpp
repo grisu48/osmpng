@@ -46,7 +46,7 @@ static REAL bounds[4];
 // True if we should be quiet
 static bool quiet = false;
 // Cache directory
-static String cacheDir = "./cache";
+static String cacheDir = "/tmp/.osmpng_cache";
 // Destination file
 static String destFile = "output.png";
 // If cached files should be deleted
@@ -325,6 +325,24 @@ static string speedHumandReadable(double speed) {
 	return ss.str();
 }
 
+static void _mkdir(const char *dir) {
+	char tmp[1024];
+	char *p = NULL;
+	size_t len;
+
+	snprintf(tmp, sizeof(tmp),"%s",dir);
+	len = strlen(tmp);
+	if(tmp[len - 1] == '/')
+	tmp[len - 1] = 0;
+	for(p = tmp + 1; *p; p++)
+		if(*p == '/') { 
+			*p = 0;
+			mkdir(tmp, S_IRWXU);
+			*p = '/';
+		}
+	mkdir(tmp, S_IRWXU);
+}
+
 int main(int argc, char** argv) {
 	// Register signal handler
 	signal(SIGINT, signal_function);
@@ -478,6 +496,8 @@ int main(int argc, char** argv) {
 		bounds[3] = tmp;
 	}
 	
+	// Create cache dir, if not yet done
+	_mkdir(cacheDir.c_str());
 	
 	// Begin download
 	COUT << "Downloading tiles (" << bounds[0] << " - " << bounds[1] << ") - ("
