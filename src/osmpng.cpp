@@ -1,5 +1,5 @@
 /* osmpng.cpp
- * 2014, Felix Niederwanger
+ * 2015, Felix Niederwanger
  * 
  * Tool for downloading PNG titles from OSM and merge them together to a 
  * single PNG map file.
@@ -29,7 +29,7 @@
 using namespace std;
 
 // VERSION
-#define VERSION "0.2a APR 2014"
+#define VERSION "0.3 JUL 2015"
 
 // Use float or double precision
 #define REAL float
@@ -99,7 +99,7 @@ static void printHeader() {
 	if(quiet) return;
 	else {
 		cout << "OSM title downloader version " << VERSION << endl;
-		cout << "  2014, Felix Niederwanger" << endl;
+		cout << "  2015, Felix Niederwanger" << endl;
 		cout << endl;
 	}
 }
@@ -273,7 +273,7 @@ static void merge(int* bounds, int zoom, std::string destination) {
 // Print help message
 static void printHelp(char* progname) {
 	cout << "OSM tile downloader - Version " << VERSION << endl;
-	cout << "2014, Felix Niederwanger" << endl << endl;
+	cout << "2015, Felix Niederwanger" << endl << endl;
 
 	cout << "Usage: " << progname << " [OPTIONS] [LONGITUDE LATITUDE ZOOM]" << endl;
 	cout << endl << "OPTIONS" << endl <<
@@ -361,10 +361,10 @@ int main(int argc, char** argv) {
 			if(arg.size() == 0) continue;
 			
 			bool isLast = i == argc-1;
-			if(arg.equalsIgnoreCase("-help") || arg.equalsIgnoreCase("help")) {
+			if(arg.equalsIgnoreCase("--help") || arg.equalsIgnoreCase("-h")) {
 				printHelp(argv[0]);
 				exit(0);
-			} else if(arg == "-version" || arg == "version") {
+			} else if(arg == "--version" || arg == "-version") {
 				cout << VERSION << endl;
 				exit(0);
 			} else if(arg.startsWith("--cache=") && arg.size() > 8) {
@@ -425,6 +425,7 @@ int main(int argc, char** argv) {
 	// Read from stdin, if not yet given as program parameter
 	if (stdinInput) {
 		try {
+			COUT << "No input parameters given. Use " << argv[0] << " --help if you need help" << endl;
 			COUT << "Type in coordinates for the map to download" << endl;
 			COUT << "  Longitude and Latitude can also be a range of coordinates" << endl;
 			COUT << endl;
