@@ -80,12 +80,12 @@ inline REAL toReal(std::string str) { return atof(str.c_str()); }
 inline int toInt(std::string str) { return atoi(str.c_str()); }
 //inline int toInt(const char* str) { return atoi(str); }
 
-REAL round(REAL f, int precision) {
+REAL fround(const REAL f, const int precision) {
 	REAL prec = pow(10, precision);
 	int i = (int)(f * prec);
 	return (REAL)(i) / prec;
 }
-inline REAL round(REAL f) { return round(f,2); }
+inline REAL fround(const REAL f) { return fround(f,2); }
 
 
 static void clear_cached_files() {
@@ -99,7 +99,7 @@ static void printHeader() {
 	if(quiet) return;
 	else {
 		cout << "OSM title downloader version " << VERSION << endl;
-		cout << "  2015, Felix Niederwanger" << endl;
+		cout << "  2018, Felix Niederwanger" << endl;
 		cout << endl;
 	}
 }
@@ -295,9 +295,9 @@ static string sizeHumanReadable(size_t size) {
 	if (size > 1024) {
 		float kb = size / 1024.0;
 		if (kb > 1024.0)
-			 ss << round(kb / 1024.0) << " MiB";
+			 ss << fround(kb / 1024.0) << " MiB";
 		else
-			ss << round(kb,2) << " kiB";
+			ss << fround(kb,2) << " kiB";
 	} else
 		ss << size << " B";
 	
@@ -316,9 +316,9 @@ static string speedHumandReadable(double speed) {
 	if (speed > 1024.0) {
 		float kb = speed / 1024.0;
 		if (kb > 1024.0)
-			 ss << round(kb / 1024.0) << " MiB/s";
+			 ss << fround(kb / 1024.0) << " MiB/s";
 		else
-			ss << round(kb,2) << " kiB/s";
+			ss << fround(kb,2) << " kiB/s";
 	} else
 		ss << speed << " B/s";
 	
@@ -515,7 +515,7 @@ int main(int argc, char** argv) {
 	unsigned long total_millis = -get_millis();
 	for(int x=ibounds[0];x<=ibounds[1];x++) {
 		for (int y=ibounds[2];y<=ibounds[3];y++) {
-			COUT << " ["<< round(100.0 * (REAL)progress / (REAL)total) << "%]" 
+			COUT << " ["<< fround(100.0 * (REAL)progress / (REAL)total) << "%]" 
 				<< "\tDownloading tile [" << x << "-" << y << "] ... ";
 			COUT.flush();
 			
@@ -528,7 +528,7 @@ int main(int argc, char** argv) {
 			progress++;
 			
 			if (!quiet) {
-				double speed = round(size*1000.0/(double)millis);
+				double speed = fround(size*1000.0/(double)millis);
 				printSizeHumanReadable(size);
 				cout << " @ " << speedHumandReadable(speed);
 				cout << "                    \r";
@@ -538,7 +538,7 @@ int main(int argc, char** argv) {
 	}
 	total_millis += get_millis();
 	if (!quiet) {
-		double speed = round(total_size*1000.0/(double)total_millis);
+		double speed = fround(total_size*1000.0/(double)total_millis);
 		
 		cout << "Downloaded totally ";
 		printSizeHumanReadable(total_size);

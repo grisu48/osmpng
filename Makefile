@@ -1,7 +1,7 @@
 CXX=g++
 #CXX_FLAGS=-Wall -pedantic -std=c++11
 # Use this CXX_FLAGS if gcc < 4.7
-CXX_FLAGS=-Wall -Wextra -Werror -pedantic -std=c++0x
+CXX_FLAGS=-Wall -Wextra -Werror -pedantic -std=c++11
 
 
 default:	all
