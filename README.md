@@ -2,6 +2,7 @@
 
 OSM Title downloader and merger tool
 
+*Disclaimer* At the moment the tool is not working due to newly introduced restrictions on fetching OSM tiles.
 
 ## Build
 
