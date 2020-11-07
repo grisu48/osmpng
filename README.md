@@ -1,30 +1,25 @@
-osmpng
-======
+# osmpng
 
 OSM Title downloader and merger tool
 
 
-Compile
-=======
+## Build
 
-osmpng depends on libpng++ and libcurl. You will need both libraries to complete the compile process.
-To compile just run
+osmpng depends on `libpng++` and `libcurl`. You will need both libraries to complete the compile process.
 
-make && sudo make install
+    make
+    sudo make install
 
-Usage
-=====
+## Usage
 
-Type osmpng --help if you need help.
+Type `osmpng --help` for a helpful help message :-)
 
-To download for instance the map of Innsbruck: osmpng -o ibk.png 11.3425-11.4614 47.2761-47.2484 14
 
-Screenshot
-==========
+### Demo 
 
-![alt tag](http://www.feldspaten.org/wp-content/uploads/2014/04/osmpng.png)
+To download for instance the map of Innsbruck
 
-Running
-=======
+    osmpng -o ibk.png 11.3425-11.4614 47.2761-47.2484 14
 
-osmpng -version
+![Screenshot of Innsbruck](osmpng.png)
+
