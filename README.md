@@ -14,6 +14,16 @@ osmpng depends on `libpng++` and `libcurl`. You will need both libraries to comp
 
 Type `osmpng --help` for a helpful help message :-)
 
+    Usage: osmpng [OPTIONS] [LONGITUDE LATITUDE ZOOM]
+    
+    OPTIONS
+    	-help                    Print this help message
+    	-version                 Print program version
+    	--cache=CACHE
+    	-c CACHE                 Define cache directory
+    	-o OUTPUT                Define output file
+    	--keep-cache
+    	-k                       Do not delete cached files after download
 
 ### Demo 
 

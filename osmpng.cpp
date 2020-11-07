@@ -166,9 +166,20 @@ size_t download(int tileX, int tileY, int zoom, string file) {
         
         if(code != CURLE_OK) {
     	    ss.str(std::string());
-	        ss << "CURL returns error " << code << "!";
+	        ss << "CURL returned error code" << code << ".";
 	        throw ss.str();
         }
+        
+        // Check response code
+        long response_code;
+        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+        if (response_code != 200) {
+	        if (response_code == 429) {
+    	    	throw "Too many requests";
+    	    }
+    	    cerr << "http respose code " << response_code << endl;
+    	    throw "Invalid http response code";
+    	}
         
         return get_file_size(file);
 		
@@ -204,6 +215,7 @@ static void signal_function(int sig_nr) {
 		cerr << "Segmentation fault (SIGSEGV)" << endl;
 		exit(101);
 	case SIGINT:
+        case SIGTERM:
 		cerr << "Caught cancel signal. Cleaning up ... ";
 		cerr.flush();
 		if(deleteCached) clear_cached_files();
@@ -218,13 +230,16 @@ static void merge(int* bounds, int zoom, std::string destination) {
 	size_t width, height;
 	size_t total_width, total_height;
 	std::string file = get_filename(bounds[0],bounds[2], zoom);
-	{
+	try {
 		png::image<png::rgb_pixel> source(file.c_str());
 		width = source.get_width();
 		height = source.get_height();
 		
 		total_width = width * (bounds[1]-bounds[0]+1);
 		total_height = height * (bounds[3]-bounds[2]+1);
+	} catch (png::error &e) {
+		cerr << "png error while processing " << file << ": " << e.what() << endl;
+		return;
 	}
 	
 	// cout << "Creating picture (" << total_width << "x" << total_height << ") ... " << endl;
@@ -513,38 +528,47 @@ int main(int argc, char** argv) {
 	size_t total_size = 0;
 	
 	unsigned long total_millis = -get_millis();
-	for(int x=ibounds[0];x<=ibounds[1];x++) {
-		for (int y=ibounds[2];y<=ibounds[3];y++) {
-			COUT << " ["<< fround(100.0 * (REAL)progress / (REAL)total) << "%]" 
-				<< "\tDownloading tile [" << x << "-" << y << "] ... ";
-			COUT.flush();
-			
-			std::string file = get_filename(x,y,zoom);
-			files.push_back(file);
-			unsigned long millis = -get_millis();
-			size_t size = download(x,y,zoom, file);
-			millis += get_millis();
-			total_size += size;
-			progress++;
-			
-			if (!quiet) {
-				double speed = fround(size*1000.0/(double)millis);
-				printSizeHumanReadable(size);
-				cout << " @ " << speedHumandReadable(speed);
-				cout << "                    \r";
-				cout.flush();
+	try {
+		for(int x=ibounds[0];x<=ibounds[1];x++) {
+			for (int y=ibounds[2];y<=ibounds[3];y++) {
+				COUT << " ["<< fround(100.0 * (REAL)progress / (REAL)total) << "%]" 
+					<< "\tDownloading tile [" << x << "-" << y << "] ... ";
+				COUT.flush();
+				
+				std::string file = get_filename(x,y,zoom);
+				files.push_back(file);
+				unsigned long millis = -get_millis();
+				size_t size = download(x,y,zoom, file);
+				millis += get_millis();
+				total_size += size;
+				progress++;
+				
+				if (!quiet) {
+					double speed = fround(size*1000.0/(double)millis);
+					printSizeHumanReadable(size);
+					cout << " @ " << speedHumandReadable(speed);
+					cout << "                    \r";
+					cout.flush();
+				}
+				sleep(1);
 			}
 		}
-	}
-	total_millis += get_millis();
-	if (!quiet) {
-		double speed = fround(total_size*1000.0/(double)total_millis);
-		
-		cout << "Downloaded totally ";
-		printSizeHumanReadable(total_size);
-		cout << " within " << total_millis << " ms @ " 
-			<< speedHumandReadable(speed) 
-			<< "                                        " << endl;
+		total_millis += get_millis();
+		if (!quiet) {
+			double speed = fround(total_size*1000.0/(double)total_millis);
+			
+			cout << "Downloaded totally ";
+			printSizeHumanReadable(total_size);
+			cout << " within " << total_millis << " ms @ " 
+				<< speedHumandReadable(speed) 
+				<< "                                        " << endl;
+		}
+	} catch (string &msg) {
+		cerr << msg << endl;
+		exit(EXIT_FAILURE);
+	} catch (const char *msg) {
+		cerr << msg << endl;
+		exit(EXIT_FAILURE);
 	}
 	
 	COUT << "Merging tiles ... ";
